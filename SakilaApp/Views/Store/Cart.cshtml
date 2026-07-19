@@ -1,0 +1,61 @@
+@model IEnumerable<SakilaApp.Models.Commerce.ShoppingCartItem>
+
+<h1>Carrito de Compras</h1>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (!Model.Any())
+{
+    <p>El carrito está vacío.</p>
+    <a class="btn btn-primary" asp-action="Index">Volver al catálogo</a>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Película</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.FilmStock.Title</td>
+                <td>@item.Quantity</td>
+                <td>@item.FilmStock.UnitPrice.ToString("C")</td>
+                <td>@((item.Quantity * item.FilmStock.UnitPrice).ToString("C"))</td>
+            </tr>
+        }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                <td><strong>@Model.Sum(i => i.Quantity * i.FilmStock.UnitPrice).ToString("C")</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="d-flex justify-content-between mt-3">
+        <a class="btn btn-secondary" asp-action="Index">Seguir comprando</a>
+        <div class="d-flex gap-2">
+            <form asp-action="Checkout" method="post">
+                <input type="hidden" name="provider" value="PayPhone" />
+                <button type="submit" class="btn btn-warning">Pagar con PayPhone</button>
+            </form>
+            <form asp-action="Checkout" method="post">
+                <input type="hidden" name="provider" value="PayPal" />
+                <button type="submit" class="btn btn-primary">Pagar con PayPal Sandbox</button>
+            </form>
+            <form asp-action="CheckoutPayPalButton" method="post" >
+    <button type="submit" class="btn btn-primary">Pagar con PayPal Sandbox/Tarjeta Sandbox</button>
+</form>
+        </div>
+    </div>
+}

@@ -1,0 +1,12 @@
+[Oo]bj/
+[Bb]in/
+publish/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+
+.env
+*.tar
+DataBase/

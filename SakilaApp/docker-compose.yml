@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  sakilaapp:
+    image: sahid3422/sakilaapp:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    restart: on-failure
+    deploy:
+      replicas: 2
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=sakila;Username=cruduser;Password=crud123
+      - PayPal__ClientId=${PayPal__ClientId}
+      - PayPal__ClientSecret=${PayPal__ClientSecret}
+      - PayPal__BaseUrl=${PayPal__BaseUrl}
+      - PayPal__ReturnUrl=${PayPal__ReturnUrl}
+      - PayPal__CancelUrl=${PayPal__CancelUrl}
+      - PayPhone__Token=${PayPhone__Token}
+      - PayPhone__StoreId=${PayPhone__StoreId}
+    networks:
+      - sakila_network
+
+  db:
+    image: postgres:17
+    environment:
+      - POSTGRES_USER=cruduser
+      - POSTGRES_PASSWORD=crud123
+      - POSTGRES_DB=sakila
+    deploy:
+      replicas: 1
+    volumes:
+      - ./DataBase:/docker-entrypoint-initdb.d
+    ports:
+      - "5434:5432"
+    networks:
+      - sakila_network
+
+networks:
+  sakila_network:
+    driver: overlay
