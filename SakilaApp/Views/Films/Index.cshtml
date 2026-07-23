@@ -6,9 +6,9 @@
 
 <h1>Index</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<div class="mb-4 mt-3">
+    <a asp-action="Create" class="btn btn-primary shadow-sm"><i class="bi bi-plus-circle"></i> Create New</a>
+</div>
 
 
 <form asp-action="Index" method="get" class="mb-3">
@@ -96,9 +96,11 @@
                 @(item.Language?.Name ?? item.LanguageId.ToString())
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.FilmId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.FilmId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.FilmId">Delete</a>
+                <div class="btn-group btn-group-sm shadow-sm" role="group">
+                    <a asp-action="Edit" asp-route-id="@item.FilmId" class="btn btn-outline-primary">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.FilmId" class="btn btn-outline-secondary">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.FilmId" class="btn btn-outline-danger">Delete</a>
+                </div>
             </td>
         </tr>
 }

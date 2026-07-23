@@ -7,6 +7,21 @@ using SakilaApp.Settings;
 using SakilaApp.Services.Payments;
 var builder = WebApplication.CreateBuilder(args);
 
+var dotenv = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+if (File.Exists(dotenv))
+{
+    foreach (var line in File.ReadAllLines(dotenv))
+    {
+        if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#")) continue;
+        var parts = line.Split('=', 2);
+        if (parts.Length == 2)
+        {
+            Environment.SetEnvironmentVariable(parts[0].Trim(), parts[1].Trim());
+        }
+    }
+    builder.Configuration.AddEnvironmentVariables();
+}
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
@@ -52,6 +67,8 @@ builder.Services.Configure<PayPalSettings>(
 
 builder.Services.AddHttpClient<PayPalService>();
 
+// Registramos el servicio de IA local con Ollama
+builder.Services.AddHttpClient<OllamaService>();
 
 var app = builder.Build();
 

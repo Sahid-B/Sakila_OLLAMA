@@ -88,3 +88,61 @@
     <a asp-action="Edit" asp-route-id="@Model?.FilmId">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+
+<!-- Sección de Integración IA -->
+<div class="mt-4 border-top pt-3">
+    <h4>Generador de Reseñas (IA Local)</h4>
+    <p class="text-muted">Utiliza el modelo Ollama qwen2.5:1.5b para crear una reseña en base al título y descripción de la película.</p>
+    
+    <button id="btnGenerarIA" class="btn btn-primary mb-3">Generar reseña con IA</button>
+    
+    <div id="resultadoIA" class="p-3 mb-3 border rounded bg-light" style="display: none;">
+        <em>Generando reseña, por favor espera...</em>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('btnGenerarIA').addEventListener('click', async function () {
+            // Obtenemos título y descripción desde Razor, usando Json.Serialize para evitar caracteres problemáticos en JS
+            const titulo = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model?.Title ?? ""));
+            const descripcion = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model?.Description ?? ""));
+            
+            // Armamos el prompt como se solicitó
+            const promptTexto = `Genera una reseña corta y atractiva para esta película: ${titulo} - ${descripcion}`;
+
+            const resultadoDiv = document.getElementById('resultadoIA');
+            const btn = document.getElementById('btnGenerarIA');
+
+            // Mostrar estado de carga y bloquear el botón
+            resultadoDiv.style.display = 'block';
+            resultadoDiv.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div> <em>Generando reseña con IA (qwen2.5:1.5b), por favor espera...</em>';
+            btn.disabled = true;
+
+            try {
+                // Petición al backend que a su vez se comunica con Ollama
+                const response = await fetch('/api/ia/generar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ prompt: promptTexto })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // Usamos innerText (o reemplazamos saltos de línea por <br>) para inyectar el texto seguro
+                    const formattedResponse = data.response.replace(/\n/g, '<br/>');
+                    resultadoDiv.innerHTML = `<strong>Reseña de IA:</strong><br/>${formattedResponse}`;
+                } else {
+                    resultadoDiv.innerHTML = '<span class="text-danger">Error al generar la reseña. Verifica el servidor.</span>';
+                }
+            } catch (error) {
+                resultadoDiv.innerHTML = `<span class="text-danger">Error de conexión: ${error.message}</span>`;
+            } finally {
+                // Restauramos el estado del botón
+                btn.disabled = false;
+            }
+        });
+    </script>
+}
